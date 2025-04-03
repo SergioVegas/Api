@@ -12,9 +12,10 @@ plugins {
     //alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.kotlinx.serialization) //
 
     //SQL Delight
-    //id("app.cash.sqldelight") version "2.0.2"
+    // id("app.cash.sqldelight") version "2.0.2"
     alias(libs.plugins.sqldelight)
 
 }
@@ -88,6 +89,20 @@ kotlin {
             implementation("org.slf4j:slf4j-simple:2.0.17")
             //SQL Delight
             implementation(libs.delight.coroutines.extensions)
+            //
+            implementation(libs.androidx.navigation.composee)
+            implementation(libs.ktor.client.cio)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.client.logging)
+            implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.0")
+            implementation("io.coil-kt.coil3:coil-compose:3.1.0")
+            implementation("io.coil-kt.coil3:coil-network-ktor3:3.1.0")
+            implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
+            implementation("com.russhwolf:multiplatform-settings-serialization:1.3.0")
+            implementation(libs.androidx.lifecycle.viewmodel.compose)
+            //
 
         }
 
@@ -112,6 +127,7 @@ kotlin {
 //        }
     }
 }
+
 
 //Configuraciones específicas para escritorio
 compose.desktop {

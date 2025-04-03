@@ -19,8 +19,7 @@ actual fun createDriver(): SqlDriver {
     val driver = JdbcSqliteDriver("jdbc:sqlite:${file.absolutePathString()}")
 
     println(file.absolutePathString())
-
-    if (Database.Schema== null) {
+    if (Database.Schema == null) {
         Database.Schema.create(driver)
     }
     return driver
