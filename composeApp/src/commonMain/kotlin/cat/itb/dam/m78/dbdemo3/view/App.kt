@@ -1,87 +1,79 @@
 package cat.itb.dam.m78.dbdemo3.view
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import cat.itb.dam.m78.dbdemo3.model.DatabaseViewModel
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.http.ContentType.Application.Json
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import androidx.lifecycle.viewmodel.compose.viewModel
-import io.ktor.client.engine.cio.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
+import cat.itb.dam.m78.dbdemo3.model.DatabaseViewModel
+import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
+import io.ktor.client.engine.cio.*
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
-// Definició de destins
 object Destination {
     @Serializable
-    data object PokemonsScreen
+    data object DigimonsScreen
     @Serializable
-    data class PokemonInfoScreen(val pokemonId: String)
+    data class DigimonInfoScreen(val pokemonId: String)
 }
-
-// https://pokeapi.co/api/v2/pokemon/
-// https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0
 
 // 1. Model de dades
 @Serializable
-data class Pokemon(
+data class Digimon(
     val name: String,
-    val url: String
+    val href: String,
+    val image: String
 )
 
 @Serializable
-data class PokemonListResponse(
-    val count: Int,
-    val next: String?,
-    val previous: String?,
-    val results: List<Pokemon>
+data class DigimonListResponse(
+    val content: List<Digimon>
 )
 
 // 2. Utilitzar ViewModel
-class PokemonsViewModel() : ViewModel() {
-    val pokemons = mutableStateOf<List<Pokemon>>(emptyList())
+class DigimonsViewModel() : ViewModel() {
+    val digimons = mutableStateOf<List<Digimon>>(emptyList())
 
     // 3. Actualitzar l'objecte fent servir la api
     init {
         viewModelScope.launch(Dispatchers.Default) {
             try {
-                val totsPokemons = PokemonsApi.list()
-                pokemons.value = totsPokemons
+                val totsDigimon = DigimonApi.list()
+                digimons.value = totsDigimon
             } catch (e: Exception) {
                 println("Error al obtenir les dades: ${e.message}")
-                pokemons.value = emptyList()
+                digimons.value = emptyList()
             }
         }
     }
 }
 
 // 4. Classe que fa servir la api
-object PokemonsApi {
+object DigimonApi {
     // Atributs
-    val url = "https://pokeapi.co/api/v2/pokemon?limit=100000&offset=0";
+    val urlstring = "https://digi-api.com/api/v1/digimon?pageSize=100";
+    val url = urlstring
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -92,12 +84,12 @@ object PokemonsApi {
 
     // Funcions
     //suspend fun list() = client.get(url).body<List<Pokemon>>()
-    suspend fun list(): List<Pokemon> { // La función sigue devolviendo List<Pokemon>
+    suspend fun list(): List<Digimon> { // La función sigue devolviendo List<Pokemon>
         try {
             // 1. Pide la respuesta completa y pársala a PokemonListResponse
-            val response = client.get(url).body<PokemonListResponse>()
+            val response = client.get(url).body<DigimonListResponse>()
             // 2. Devuelve solo la lista 'results' de la respuesta
-            return response.results
+            return response.content
         } catch (e: Exception) {
             // Puedes hacer un log más específico aquí si quieres
             println("Error en PokemonsApi.list: ${e.message}")
@@ -110,16 +102,16 @@ object PokemonsApi {
 
 // Pantalla inicial
 @Composable
-fun PokemonsScreen(navigateToPokemonInfoScreen: (String) -> Unit) {
-    val viewModel = viewModel { PokemonsViewModel() }
-    val pokemons = viewModel.pokemons.value
+fun DigimonsScreen(navigateToDigimonsScreen: (String) -> Unit) {
+    val viewModel = viewModel { DigimonsViewModel() }
+    val digimons = viewModel.digimons.value
 
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        if (pokemons.isEmpty()) {
+        if (digimons.isEmpty()) {
             CircularProgressIndicator(modifier = Modifier)
         } else {
             LazyColumn(
@@ -127,17 +119,19 @@ fun PokemonsScreen(navigateToPokemonInfoScreen: (String) -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                items(pokemons) { pokemon ->
+                items(digimons) { digimon ->
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
                         // Nom
+
                         Text(
-                            text = "${pokemon.name}",
+                            text = "${digimon.name}",
                             modifier = Modifier.clickable {
-                                navigateToPokemonInfoScreen(pokemon.name)
+                                navigateToDigimonsScreen(digimon.name)
                             }
                         )
+                        AsyncImage(model = digimon.image, contentDescription = digimon.name, modifier = Modifier.size(150.dp))
                     }
                 }
             }
@@ -147,10 +141,10 @@ fun PokemonsScreen(navigateToPokemonInfoScreen: (String) -> Unit) {
 
 // Pantalla Info Pokemon
 @Composable
-fun PokemonInfoScreen(pokemonId: String) {
-    val viewModel = viewModel { PokemonsViewModel() }
-    val pokemons = viewModel.pokemons.value
-    val pokemonsInfo = pokemons.filter { it.name == pokemonId }
+fun DigimonInfoScreen(pokemonId: String) {
+    val viewModel = viewModel { DigimonsViewModel() }
+    val digimons = viewModel.digimons.value
+    val pokemonsInfo = digimons.filter { it.name == pokemonId }
 
     if (pokemonsInfo != null) {
         LazyColumn(
@@ -175,25 +169,6 @@ fun PokemonInfoScreen(pokemonId: String) {
     }
 }
 
-
-
-//
-@Composable
-@Preview
-fun App(viewModel: DatabaseViewModel=DatabaseViewModel()) {
-    // PokemonsScreen()
-    val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = Destination.PokemonsScreen) {
-        composable<Destination.PokemonsScreen> {
-            PokemonsScreen { id ->
-                navController.navigate(Destination.PokemonInfoScreen(id))
-            }
-        }
-        composable<Destination.PokemonInfoScreen> { backStack ->
-            val pokemonId = backStack.arguments?.getString("pokemonId") ?: ""
-            PokemonInfoScreen(pokemonId)
-        }
-    }
     /*
     MaterialTheme {
 
@@ -266,4 +241,3 @@ fun App(viewModel: DatabaseViewModel=DatabaseViewModel()) {
         }
     }
     */
-}
