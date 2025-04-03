@@ -1,6 +1,6 @@
 package cat.itb.dam.m78.dbdemo3.view
 
-import androidx.compose.foundation.Image
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,6 +9,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType.Companion.Uri
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,34 +23,41 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import cat.itb.dam.m78.dbdemo3.model.DatabaseViewModel
 import coil3.compose.AsyncImage
-import coil3.compose.rememberAsyncImagePainter
 import io.ktor.client.engine.cio.*
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import io.ktor.http.*
 
-object Destination {
-    @Serializable
-    data object DigimonsScreen
-    @Serializable
-    data class DigimonInfoScreen(val pokemonId: String)
-}
 
 // 1. Model de dades
 @Serializable
 data class Digimon(
     val name: String,
     val href: String,
-    val image: String
+    val image: String,
+    val id : Int
 )
 
 @Serializable
 data class DigimonListResponse(
     val content: List<Digimon>
 )
+@Serializable
+data class DigimonDetail(
+    val name: String,
+    val descriptions : List<Descriptions>,
+    val images : List<Image>
+)
+
+@Serializable
+data class Image(
+    val href: String,
+)
+@Serializable
+data class Descriptions(
+    val language: String,
+    val description: String,
+)
+
 
 // 2. Utilitzar ViewModel
 class DigimonsViewModel() : ViewModel() {
@@ -68,12 +76,33 @@ class DigimonsViewModel() : ViewModel() {
         }
     }
 }
+class DigimonInfoViewModel(private val digimonHref: String) : ViewModel() {
+    val digimonDetail = mutableStateOf<Digimon?>(null) // Usamos Digimon? porque la carga puede fallar o tardar
+    val loading = mutableStateOf(true) // Para indicar que está cargando
+    val error = mutableStateOf<String?>(null) // Para manejar errores
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) { // Usamos Dispatchers.IO para operaciones de red
+            try {
+                loading.value = true // Empezamos la carga
+                val detail = DigimonApi.getDigimonDetails(digimonHref) // Llamamos a la nueva función de la API
+                digimonDetail.value = detail
+                error.value = null // Limpiamos cualquier error previo
+            } catch (e: Exception) {
+                println("Error al obtener detalles del Digimon: ${e.message}")
+                error.value = "Error al cargar los detalles del Digimon." // Establecemos el mensaje de error
+                digimonDetail.value = null // Aseguramos que no haya datos parciales
+            } finally {
+                loading.value = false // Finalizamos la carga, sea exitosa o no
+            }
+        }
+    }
+}
 
 // 4. Classe que fa servir la api
 object DigimonApi {
     // Atributs
-    val urlstring = "https://digi-api.com/api/v1/digimon?pageSize=100";
-    val url = urlstring
+    val url = "https://digi-api.com/api/v1/digimon?pageSize=100";
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json {
@@ -83,7 +112,15 @@ object DigimonApi {
     }
 
     // Funcions
-    //suspend fun list() = client.get(url).body<List<Pokemon>>()
+    suspend fun getDigimonDetails(digimonId: String): Digimon? { // Ahora toma digimonId como String
+        val detailUrl = "https://digi-api.com/api/v1/digimon/$digimonId" // Construye la URL de detalles
+        try {
+            return client.get(detailUrl).body<Digimon>() // Pide los detalles con la nueva URL
+        } catch (e: Exception) {
+            println("Error en DigimonApi.getDigimonDetails para ID $digimonId: ${e.message}")
+            return null // Devuelve null en caso de error
+        }
+    }
     suspend fun list(): List<Digimon> { // La función sigue devolviendo List<Pokemon>
         try {
             // 1. Pide la respuesta completa y pársala a PokemonListResponse
@@ -128,7 +165,8 @@ fun DigimonsScreen(navigateToDigimonsScreen: (String) -> Unit) {
                         Text(
                             text = "${digimon.name}",
                             modifier = Modifier.clickable {
-                                navigateToDigimonsScreen(digimon.name)
+                                val encodedHref = digimon.href.encodeURLQueryComponent() // Usa encodeURLQueryComponent()
+                                navigateToDigimonsScreen(encodedHref)
                             }
                         )
                         AsyncImage(model = digimon.image, contentDescription = digimon.name, modifier = Modifier.size(150.dp))
@@ -141,103 +179,28 @@ fun DigimonsScreen(navigateToDigimonsScreen: (String) -> Unit) {
 
 // Pantalla Info Pokemon
 @Composable
-fun DigimonInfoScreen(pokemonId: String) {
-    val viewModel = viewModel { DigimonsViewModel() }
-    val digimons = viewModel.digimons.value
-    val pokemonsInfo = digimons.filter { it.name == pokemonId }
+fun DigimonInfoScreen(digimonHref: String) { // Recibe digimonHref como parámetro
+    val digimonInfoViewModel = viewModel { DigimonInfoViewModel(digimonHref) }
+    val digimonDetail = digimonInfoViewModel.digimonDetail.value
+    val loading = digimonInfoViewModel.loading.value
+    val error = digimonInfoViewModel.error.value
 
-    if (pokemonsInfo != null) {
-        LazyColumn(
-            modifier = Modifier.padding(16.dp).fillMaxWidth()
-        ) {
-            items(pokemonsInfo) { pokemonInfo ->
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    // Nom
-                    Text( text = "${pokemonInfo.name}")
-
-                    //
-
-                    // Resta atributs
-
-                }
-            }
+    Column(
+        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (loading) {
+            CircularProgressIndicator() // Muestra un indicador de carga mientras se cargan los detalles
+        } else if (error != null) {
+            Text(text = error) // Muestra un mensaje de error si hubo un problema
+        } else if (digimonDetail != null) {
+            // Muestra los detalles del Digimon
+            Text(text = digimonDetail.name, style = MaterialTheme.typography.h5)
+            AsyncImage(model = digimonDetail.image, contentDescription = digimonDetail.name, modifier = Modifier.size(200.dp))
+            // Aquí puedes mostrar otros detalles si la clase Digimon tiene más campos relevantes que quieras mostrar
+        } else {
+            Text("Digimon no encontrado.") // Mensaje por si, por alguna razón, no se encuentra el Digimon después de la carga
         }
-    } else {
-        Text("Pokemon no trobat.")
     }
 }
 
-    /*
-    MaterialTheme {
-
-        //Llista amb tots els registres, obtinguda del ViewModel
-        val all = viewModel.allTexts.value
-        var inputText by remember { mutableStateOf("") }
-
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            // Text field and button
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    //El textField està enllaçat al camp inputText.  No està al ViewModel per què és funcionament de la pantalla
-                    TextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        label = { Text("Enter text") },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(8.dp)
-                            .background(MaterialTheme.colors.background, shape = RoundedCornerShape(8.dp))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Button(
-                        // Quanes fa click, el botó cirda al ViewModel per fer un insert a la base de dades
-                        onClick = { viewModel.insertText(inputText) },
-                        colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.primary),
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        Text("Add", color = MaterialTheme.colors.onPrimary)
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // List of items
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                items(all) { item ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp)
-                            .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(item.text, style = MaterialTheme.typography.body1)
-                        IconButton(onClick = {viewModel.deleteText(item.id) }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Delete")
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
