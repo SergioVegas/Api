@@ -76,24 +76,24 @@ class DigimonsViewModel() : ViewModel() {
         }
     }
 }
-class DigimonInfoViewModel(private val digimonHref: String) : ViewModel() {
-    val digimonDetail = mutableStateOf<Digimon?>(null) // Usamos Digimon? porque la carga puede fallar o tardar
-    val loading = mutableStateOf(true) // Para indicar que está cargando
-    val error = mutableStateOf<String?>(null) // Para manejar errores
+class DigimonInfoViewModel(private val digimonId: String) : ViewModel() { // Recibe digimonId
+    val digimonDetail = mutableStateOf<Digimon?>(null)
+    val loading = mutableStateOf(true)
+    val error = mutableStateOf<String?>(null)
 
     init {
-        viewModelScope.launch(Dispatchers.IO) { // Usamos Dispatchers.IO para operaciones de red
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                loading.value = true // Empezamos la carga
-                val detail = DigimonApi.getDigimonDetails(digimonHref) // Llamamos a la nueva función de la API
+                loading.value = true
+                val detail = DigimonApi.getDigimonDetails(digimonId) // Llama a getDigimonDetails con digimonId
                 digimonDetail.value = detail
-                error.value = null // Limpiamos cualquier error previo
+                error.value = null
             } catch (e: Exception) {
-                println("Error al obtener detalles del Digimon: ${e.message}")
-                error.value = "Error al cargar los detalles del Digimon." // Establecemos el mensaje de error
-                digimonDetail.value = null // Aseguramos que no haya datos parciales
+                println("Error al obtener detalles del Digimon con ID $digimonId: ${e.message}")
+                error.value = "Error al cargar los detalles del Digimon."
+                digimonDetail.value = null
             } finally {
-                loading.value = false // Finalizamos la carga, sea exitosa o no
+                loading.value = false
             }
         }
     }
@@ -165,8 +165,7 @@ fun DigimonsScreen(navigateToDigimonsScreen: (String) -> Unit) {
                         Text(
                             text = "${digimon.name}",
                             modifier = Modifier.clickable {
-                                val encodedHref = digimon.href.encodeURLQueryComponent() // Usa encodeURLQueryComponent()
-                                navigateToDigimonsScreen(encodedHref)
+                                navigateToDigimonsScreen(digimon.id.toString())
                             }
                         )
                         AsyncImage(model = digimon.image, contentDescription = digimon.name, modifier = Modifier.size(150.dp))
@@ -179,8 +178,8 @@ fun DigimonsScreen(navigateToDigimonsScreen: (String) -> Unit) {
 
 // Pantalla Info Pokemon
 @Composable
-fun DigimonInfoScreen(digimonHref: String) { // Recibe digimonHref como parámetro
-    val digimonInfoViewModel = viewModel { DigimonInfoViewModel(digimonHref) }
+fun DigimonInfoScreen(digimonId: String) { // Recibe digimonId como parámetro
+    val digimonInfoViewModel = viewModel { DigimonInfoViewModel(digimonId) }
     val digimonDetail = digimonInfoViewModel.digimonDetail.value
     val loading = digimonInfoViewModel.loading.value
     val error = digimonInfoViewModel.error.value

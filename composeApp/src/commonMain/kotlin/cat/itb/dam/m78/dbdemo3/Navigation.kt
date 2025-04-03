@@ -19,35 +19,37 @@ object Destination {
     }
 
     @Serializable
-    data class DigimonInfoScreenDestination(val digimonHref: String) { // Data class for DigimonInfoScreen with href
+    data class DigimonInfoScreenDestination(val digimonId: String) { // Data class for DigimonInfoScreen with href
         companion object {
-            const val route = "digimon_info/{digimonHref}" // Route with parameter
-            const val digimonHrefArg = "digimonHref" // Argument name constant
+            const val route = "digimon_info/{digimonId}" // Route with parameter
+            const val digimonIdArg = "digimonId" // Argument name constant
         }
     }
 }
 
 
 @Composable
-fun App(viewModel: DatabaseViewModel = viewModel()) { // Assuming DatabaseViewModel is relevant elsewhere
+fun App() { // Remove the viewModel parameter from the App function signature
     val navController = rememberNavController()
+    val viewModelInstance: DatabaseViewModel = viewModel() // Get an instance of DatabaseViewModel using viewModel()
 
     NavHost(navController = navController, startDestination = Destination.DigimonsScreen.route) {
-        composable(Destination.DigimonsScreen.route) { // Use route constant
-            DigimonsScreen(navigateToDigimonsScreen = { href ->
-                navController.navigate(Destination.DigimonInfoScreenDestination.route.replace("{digimonHref}", href)) // Navigate with route replacement
+        composable(Destination.DigimonsScreen.route) {
+            DigimonsScreen(navigateToDigimonsScreen = { digimonId -> // Parámetro es digimonId
+                navController.navigate(Destination.DigimonInfoScreenDestination.route.replace("{digimonId}", digimonId)) // Navega con digimonId
             })
         }
         composable(
-            route = Destination.DigimonInfoScreenDestination.route, // Use route constant
-            arguments = listOf( // Define arguments for composable
-                navArgument(Destination.DigimonInfoScreenDestination.digimonHrefArg) {
+            route = Destination.DigimonInfoScreenDestination.route,
+            arguments = listOf(
+                navArgument(Destination.DigimonInfoScreenDestination.digimonIdArg) {
                     type = NavType.StringType
                 }
             )
         ) { backStackEntry ->
-            val digimonHref = backStackEntry.arguments?.getString(Destination.DigimonInfoScreenDestination.digimonHrefArg) ?: "" // Get argument
-            DigimonInfoScreen(digimonHref = digimonHref) // Pass href to DigimonInfoScreen
+            val digimonId = backStackEntry.arguments?.getString(Destination.DigimonInfoScreenDestination.digimonIdArg) ?: "" // Obtiene digimonId
+            DigimonInfoScreen(digimonId = digimonId) // Pasa digimonId a DigimonInfoScreen
         }
     }
 }
+
