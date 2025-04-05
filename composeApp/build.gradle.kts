@@ -127,6 +127,10 @@ kotlin {
 //        }
     }
 }
+dependencies {
+   // implementation(libs.androidx.ui.graphics.android)
+    //implementation(libs.androidx.ui.text.android)
+}
 
 
 //Configuraciones específicas para escritorio
