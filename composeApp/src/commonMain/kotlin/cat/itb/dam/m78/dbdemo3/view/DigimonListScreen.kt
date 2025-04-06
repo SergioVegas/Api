@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -21,15 +22,15 @@ import coil3.compose.AsyncImage
 import dbdemo3.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
 import dbdemo3.composeapp.generated.resources.Digimon_background
-
+import java.awt.Font
 
 
 @Composable
-fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit) {
+fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit,listIsAll :() -> Unit, listIsFavs :() -> Unit) {
     val viewModel = viewModel { DigimonsViewModel() }
     val digimons = viewModel.digimonList.value
     val search = viewModel.searchQuery
-  /*  Scaffold (bottomBar = {
+   /* Scaffold (bottomBar = {
         NavigationBar (containerColor = Color(0XFF3D418B)){
             NavigationBarItem(
                 selected = false,
@@ -39,7 +40,8 @@ fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit) {
                     tint = Color.White)},
                 label = {Text("All",
                     color = Color.White,
-                    fontFamily = FontFamily(Font(Res.font.Audiowide_Regular)))}
+                    fontFamily = FontFamily(Font(Res.font.Audiowide_Regular))
+                )}
             )
             NavigationBarItem(
                 selected = false,

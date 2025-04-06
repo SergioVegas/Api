@@ -15,7 +15,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) //
 
     //SQL Delight
-    // id("app.cash.sqldelight") version "2.0.2"
+    //id("app.cash.sqldelight") version "2.0.2"
     alias(libs.plugins.sqldelight)
 
 }
@@ -125,9 +125,11 @@ kotlin {
 //        nativeMain.dependencies {
 //            implementation(libs.delight.native.driver)
 //        }
+
     }
 }
 dependencies {
+
     // implementation(libs.androidx.ui.graphics.android)
     //implementation(libs.androidx.ui.text.android)
 }
