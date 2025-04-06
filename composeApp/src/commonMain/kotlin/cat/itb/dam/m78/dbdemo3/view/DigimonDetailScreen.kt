@@ -37,6 +37,16 @@ fun DigimonInfoScreen(navigateToDigimonListScreen : ()-> Unit,  digimonId: Strin
         } else if (digimonDetail != null) {
 
             Text(text = digimonDetail.name, style = MaterialTheme.typography.h5)
+
+            if (digimonDetail.levels != null && digimonDetail.levels.isNotEmpty()) {
+                Text(text = "Nivell: " + digimonDetail.levels.firstOrNull()?.level ?: "", style = MaterialTheme.typography.body1)}
+
+            if (digimonDetail.types != null && digimonDetail.types.isNotEmpty()) {
+                Text(text = "Tipus: " + digimonDetail.types.firstOrNull()?.type ?: "", style = MaterialTheme.typography.body1)}
+
+            if (digimonDetail.attributes != null && digimonDetail.attributes.isNotEmpty()) {
+                Text(text = "Atributs: " + digimonDetail.attributes.firstOrNull()?.attribute ?: "", style = MaterialTheme.typography.body1)}
+
             AsyncImage(model = digimonDetail.images.firstOrNull()?.href, contentDescription = digimonDetail.name, modifier = Modifier.size(200.dp))
             if (englishDescription != null) {
                 Text(text = englishDescription, style = MaterialTheme.typography.body1)

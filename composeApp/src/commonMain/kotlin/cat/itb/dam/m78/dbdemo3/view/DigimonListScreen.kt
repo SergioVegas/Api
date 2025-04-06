@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -74,11 +75,18 @@ fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit) {
             verticalArrangement = Arrangement.Center
         ) {
             OutlinedTextField(
-                modifier = Modifier.padding(top = 15.dp, bottom = 5.dp),
+                modifier = Modifier
+                    .padding(top = 15.dp, bottom = 5.dp)
+                    .width(300.dp)
+                    .height(56.dp),
                 value = search.value,
-                label = { Text("Cerca el teu Digimon!") },
-                onValueChange = { search.value = it })
+                label = { Text("Cerca el teu Digimon!",
+                    fontWeight = FontWeight.Bold) },
+                onValueChange = { search.value = it },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = Color.Black),
 
+                )
                 LazyColumn(
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp), // Ajusta el horizontal
                     verticalArrangement = Arrangement.spacedBy(8.dp),

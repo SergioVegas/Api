@@ -9,11 +9,11 @@ import io.ktor.client.request.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.slf4j.event.Level
 
 @Serializable
 data class Digimon(
     val name: String,
-    val href: String,
     val image: String,
     val id : Int
 )
@@ -26,12 +26,27 @@ data class DigimonListResponse(
 data class DigimonDetail(
     val name: String,
     val descriptions : List<Descriptions>,
+    val levels : List<Level1>,
+    val types : List<Type>,
+    val attributes : List<Attribute>,
     val images : List<ImageUrl>
 )
 
 @Serializable
 data class ImageUrl(
     val href: String,
+)
+@Serializable
+data class Level1(
+    val level: String,
+)
+@Serializable
+data class Type(
+    val type: String,
+)
+@Serializable
+data class Attribute(
+    val attribute: String,
 )
 @Serializable
 data class Descriptions(
