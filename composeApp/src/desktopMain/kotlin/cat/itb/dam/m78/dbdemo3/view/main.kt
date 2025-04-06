@@ -4,7 +4,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import cat.itb.dam.m78.dbdemo3.DigimonNavigation
 
 fun main() = application {
     Window(

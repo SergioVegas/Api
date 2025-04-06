@@ -1,4 +1,4 @@
-package cat.itb.dam.m78.dbdemo3
+package cat.itb.dam.m78.dbdemo3.view
 
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.Composable
@@ -6,8 +6,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import cat.itb.dam.m78.dbdemo3.view.DigimonInfoScreen
-import cat.itb.dam.m78.dbdemo3.view.DigimonListScreen
 
 @Serializable
 object Destination{
