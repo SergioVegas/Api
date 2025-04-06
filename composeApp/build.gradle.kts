@@ -128,7 +128,7 @@ kotlin {
     }
 }
 dependencies {
-   // implementation(libs.androidx.ui.graphics.android)
+    // implementation(libs.androidx.ui.graphics.android)
     //implementation(libs.androidx.ui.text.android)
 }
 
@@ -177,4 +177,3 @@ compose.desktop {
 //dependencies {
 //    debugImplementation(compose.uiTooling)
 //}
-

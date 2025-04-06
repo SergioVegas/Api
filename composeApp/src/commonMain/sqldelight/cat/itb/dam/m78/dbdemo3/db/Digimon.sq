@@ -1,0 +1,12 @@
+CREATE TABLE favDigimons (
+    ID TEXT NOT NULL
+);
+
+selectFavs:
+SELECT ID FROM favDigimons;
+
+insertFav:
+INSERT INTO favDigimons (ID) VALUES (?);
+
+deleteFav:
+DELETE FROM favDigimons WHERE ID = ?;
