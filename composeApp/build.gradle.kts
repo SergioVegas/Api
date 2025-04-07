@@ -7,13 +7,14 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 //import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 //import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     //alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinx.serialization) //
-
+    //id("com.gradle.develocity") version ("3.19.2")
     //SQL Delight
     //id("app.cash.sqldelight") version "2.0.2"
     alias(libs.plugins.sqldelight)
@@ -102,6 +103,7 @@ kotlin {
             implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
             implementation("com.russhwolf:multiplatform-settings-serialization:1.3.0")
             implementation(libs.androidx.lifecycle.viewmodel.compose)
+            implementation("androidx.compose.material3:material3:1.2.0")
             //
 
         }

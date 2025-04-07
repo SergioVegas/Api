@@ -2,6 +2,7 @@ package cat.itb.dam.m78.dbdemo3.view
 
 import kotlinx.serialization.Serializable
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,8 +22,9 @@ fun DigimonNavigation() {
     NavHost(navController = navController, startDestination = Destination.DigimonListScreen) {
         composable<Destination.DigimonListScreen> {
             DigimonListScreen (navigateToDigimonDetailScreen = {
-                navController.navigate(Destination.DigimonInfoScreen(it))
-            })
+                navController.navigate(Destination.DigimonInfoScreen(it), )
+            }
+                )
         }
         composable<Destination.DigimonInfoScreen> { backStack ->
             val id = backStack.toRoute<Destination.DigimonInfoScreen>().id

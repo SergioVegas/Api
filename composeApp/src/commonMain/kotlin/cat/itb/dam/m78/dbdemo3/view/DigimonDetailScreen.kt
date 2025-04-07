@@ -15,8 +15,8 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cat.itb.dam.m78.dbdemo3.model.DigimonInfoViewModel
 import coil3.compose.AsyncImage
-import dbdemo3.composeapp.generated.resources.Details_background
-import dbdemo3.composeapp.generated.resources.Digimon_background
+//import dbdemo3.composeapp.generated.resources.Details_background
+//import dbdemo3.composeapp.generated.resources.Digimon_background
 import dbdemo3.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
 
@@ -31,14 +31,14 @@ fun DigimonInfoScreen(navigateToDigimonListScreen : ()-> Unit,  digimonId: Strin
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Image(
+        /*Image(
             painter = painterResource(Res.drawable.Details_background),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(-1f),
             contentScale = ContentScale.Crop
-        )
+        )*/
         Column(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally

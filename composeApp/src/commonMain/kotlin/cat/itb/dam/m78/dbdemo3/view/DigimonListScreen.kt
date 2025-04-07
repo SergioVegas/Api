@@ -6,6 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,54 +24,53 @@ import androidx.compose.ui.zIndex
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cat.itb.dam.m78.dbdemo3.model.DigimonsViewModel
 import coil3.compose.AsyncImage
-import dbdemo3.composeapp.generated.resources.Res
+//import dbdemo3.composeapp.generated.resources.Res
 import org.jetbrains.compose.resources.painterResource
-import dbdemo3.composeapp.generated.resources.Digimon_background
+//import dbdemo3.composeapp.generated.resources.Digimon_background
 import java.awt.Font
 
 
 @Composable
-fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit,listIsAll :() -> Unit, listIsFavs :() -> Unit) {
-    val viewModel = viewModel { DigimonsViewModel() }
+fun DigimonListScreen(viewModel: DigimonsViewModel=DigimonsViewModel(), navigateToDigimonDetailScreen: (String) -> Unit) {
     val digimons = viewModel.digimonList.value
     val search = viewModel.searchQuery
-   /* Scaffold (bottomBar = {
-        NavigationBar (containerColor = Color(0XFF3D418B)){
+
+    Scaffold (bottomBar = {
+        NavigationBar  (containerColor = Color(0XFF3D418B)){
             NavigationBarItem(
                 selected = false,
-                onClick = listIsAll,
+                onClick = {viewModel.listIsAll()},
                 icon = { Icon(imageVector = Icons.Default.Home,
                     contentDescription = null,
                     tint = Color.White)},
                 label = {Text("All",
-                    color = Color.White,
-                    fontFamily = FontFamily(Font(Res.font.Audiowide_Regular))
+                    color = Color.White
                 )}
             )
             NavigationBarItem(
                 selected = false,
-                onClick = listIsFavs,
+                onClick = {viewModel.listIsFavs()},
                 icon = { Icon(imageVector = Icons.Default.Star,
                     contentDescription = null,
                     tint = Color.White)},
                 label = {Text("Favourites",
-                    color = Color.White,
-                    fontFamily = FontFamily(Font(Res.font.Audiowide_Regular)))}
+                    color = Color.White)
+                    }
             )
         }
     })
-    {*/
+    {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Image(
+        /*Image(
             painter = painterResource(Res.drawable.Digimon_background),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxSize()
                 .zIndex(-1f),
             contentScale = ContentScale.Crop
-        )
+        )*/
         if (digimons.isEmpty()) {
         CircularProgressIndicator(modifier = Modifier)
         Text("Loading...")
@@ -136,7 +140,7 @@ fun DigimonListScreen(navigateToDigimonDetailScreen: (String) -> Unit,listIsAll 
     }
 }
 
-    //}
+    }
 
 
 
